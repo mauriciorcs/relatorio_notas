@@ -1,0 +1,138 @@
+---
+title: "Notas"
+format: html
+editor: visual
+---
+
+## Manipulação de Dados
+
+### Carregamento dos dados
+
+```{r setup}
+library(dplyr)
+library(plotrix)
+```
+
+```{r}
+setwd("C:/Users/mauri/Introdução_R")
+df <- read.csv("exemplo_notas_si.csv")
+```
+
+#### Notas igual a 10
+
+```{r}
+notas_10 <- df %>% filter(nota == 10)
+print(notas_10)
+```
+
+#### Notas de um disciplina específica: exemplo "SISTEMAS DISTRIBUIDOS", ordenadas da maior para a menor nota
+
+```{r}
+notas_sistemas_distribuidos <- df %>%
+  filter(disciplina == "SISTEMAS DISTRIBUIDOS") %>%
+  arrange(desc(nota))
+print(notas_sistemas_distribuidos)
+```
+
+### Média geral das disciplinas
+
+```{r}
+# Calcular a média das notas por disciplina
+media_notas <- aggregate(nota ~ disciplina, data = df, FUN = mean)
+
+View(media_notas)
+```
+
+### Disciplina com a maior média
+
+```{r}
+disciplina_com_maior_media <- media_notas[which.max(media_notas$nota), ]
+print(disciplina_com_maior_media)
+```
+
+### Disciplina com a menor média
+
+```{r}
+disciplina_com_menor_media <- media_notas[which.min(media_notas$nota), ]
+print(disciplina_com_menor_media)
+```
+
+### Quantidade de alunos por disciplina
+
+```{r}
+quantidade_alunos_por_disciplina <- aggregate(nota ~ disciplina, data = df, FUN = length)
+
+colnames(quantidade_alunos_por_disciplina)[2] <- "quantidade_alunos"
+
+View(quantidade_alunos_por_disciplina)
+```
+
+### Disciplina que teve a maior quantidade de alunos
+
+```{r}
+disciplina_maior_quantidade_alunos <- quantidade_alunos_por_disciplina[which.max(quantidade_alunos_por_disciplina$quantidade_alunos), ]
+
+print(disciplina_maior_quantidade_alunos)
+```
+
+### Disciplina que teve a menor quantidade de alunos
+
+```{r}
+disciplina_menor_quantidade_alunos <- quantidade_alunos_por_disciplina[which.min(quantidade_alunos_por_disciplina$quantidade_alunos), ]
+
+print(disciplina_menor_quantidade_alunos)
+```
+
+### Percentual de aprovados por disciplina
+
+Considerando que a nota mínima para aprovação é 5.
+
+```{r}
+calcula_resultado <- function(media) {
+  ifelse(media >= 5, 'APROVADO', 'REPROVADO')
+}
+
+df$resultado <- calcula_resultado(df$nota)
+
+```
+
+```{r}
+taxa_aprovacao_por_disciplina <- aggregate(resultado ~ disciplina, data = df, FUN = function(x) mean(x == 'APROVADO') * 100)
+```
+
+```{r}
+colnames(taxa_aprovacao_por_disciplina) <- c('disciplina', 'taxa_aprovacao')
+
+print(taxa_aprovacao_por_disciplina)
+```
+
+### Disciplina com a maior taxa de aprovação
+
+```{r}
+max_percentual_aprovacao <- max(taxa_aprovacao_por_disciplina$taxa_aprovacao)
+
+disciplinas_maior_aprovacao <- taxa_aprovacao_por_disciplina[taxa_aprovacao_por_disciplina$taxa_aprovacao == max_percentual_aprovacao, ]
+
+print(disciplinas_maior_aprovacao)
+```
+
+### Disciplina com a menor taxa de aprovação
+
+```{r}
+min_percentual_aprovacao <- min(taxa_aprovacao_por_disciplina$taxa_aprovacao)
+
+disciplinas_menor_aprovacao <- taxa_aprovacao_por_disciplina[taxa_aprovacao_por_disciplina$taxa_aprovacao == min_percentual_aprovacao, ]
+
+print(disciplinas_menor_aprovacao)
+```
+
+```{r}
+contagem <- table(df$resultado)
+
+cores <- c("green", "red")
+
+pie3D(contagem, labels = paste(names(contagem), "(", round(100*contagem/sum(contagem), 1), "%)"), col = cores, explode = 0.4)
+
+title(main = "Taxa de Aprovação", font.main = 1, col.main = "blue")
+legend("topright", legend = names(contagem), fill = cores, title = "Resultado", cex = 0.8)
+```
