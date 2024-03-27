@@ -125,6 +125,8 @@ disciplinas_menor_aprovacao <- taxa_aprovacao_por_disciplina[taxa_aprovacao_por_
 print(disciplinas_menor_aprovacao)
 ```
 
+### Gráfico  (Taxa de aprovação)
+
 ```{r}
 contagem <- table(df$resultado)
 png(file = "grafico.png")
